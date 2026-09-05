@@ -5,6 +5,7 @@ import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
 import exerciseRoutes from './routes/exercises.js';
 import settingsRoutes from './routes/settings.js';
+import workoutRoutes from './routes/workouts.js';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/workouts', workoutRoutes);
 
 // 404 handler
 app.use((req, res) => {
