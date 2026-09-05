@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 
-// Single document that stores user-managed lists (equipment, movement types)
 const settingsSchema = new mongoose.Schema({
-  key:   { type: String, required: true, unique: true },
-  items: [{ type: String, trim: true }],
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  key:    { type: String, required: true },
+  items:  [{ type: String, trim: true }],
 }, { timestamps: true });
+
+settingsSchema.index({ userId: 1, key: 1 }, { unique: true });
 
 export default mongoose.model('Settings', settingsSchema);

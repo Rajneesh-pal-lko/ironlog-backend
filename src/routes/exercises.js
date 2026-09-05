@@ -1,12 +1,16 @@
 import express from 'express';
 import Exercise from '../models/Exercise.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET all exercises
+// All routes protected — user must be logged in
+router.use(protect);
+
+// GET all exercises for logged in user
 router.get('/', async (req, res) => {
   try {
-    const exercises = await Exercise.find().sort({ name: 1 });
+    const exercises = await Exercise.find({ userId: req.user._id }).sort({ name: 1 });
     res.json(exercises);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -16,7 +20,7 @@ router.get('/', async (req, res) => {
 // POST create exercise
 router.post('/', async (req, res) => {
   try {
-    const exercise = new Exercise(req.body);
+    const exercise = new Exercise({ ...req.body, userId: req.user._id });
     const saved = await exercise.save();
     res.status(201).json(saved);
   } catch (err) {
@@ -27,8 +31,8 @@ router.post('/', async (req, res) => {
 // PUT update exercise
 router.put('/:id', async (req, res) => {
   try {
-    const updated = await Exercise.findByIdAndUpdate(
-      req.params.id,
+    const updated = await Exercise.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id },
       req.body,
       { new: true, runValidators: true }
     );
@@ -42,7 +46,7 @@ router.put('/:id', async (req, res) => {
 // PATCH toggle active
 router.patch('/:id/toggle', async (req, res) => {
   try {
-    const exercise = await Exercise.findById(req.params.id);
+    const exercise = await Exercise.findOne({ _id: req.params.id, userId: req.user._id });
     if (!exercise) return res.status(404).json({ error: 'Exercise not found' });
     exercise.active = !exercise.active;
     await exercise.save();
@@ -55,7 +59,7 @@ router.patch('/:id/toggle', async (req, res) => {
 // DELETE exercise
 router.delete('/:id', async (req, res) => {
   try {
-    const deleted = await Exercise.findByIdAndDelete(req.params.id);
+    const deleted = await Exercise.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
     if (!deleted) return res.status(404).json({ error: 'Exercise not found' });
     res.json({ message: 'Deleted successfully' });
   } catch (err) {
