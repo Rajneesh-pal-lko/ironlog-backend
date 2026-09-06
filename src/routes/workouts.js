@@ -67,8 +67,10 @@ router.post('/:id/exercises', async (req, res) => {
     session.exercises.push({
       exerciseId:   req.body.exerciseId,
       exerciseName: req.body.exerciseName,
-      muscleGroup:  req.body.muscleGroup || '',
-      unilateral:   req.body.unilateral || false,
+      muscleGroup:  req.body.muscleGroup  || '',
+      unilateral:   req.body.unilateral   || false,
+      isBodyweight: req.body.isBodyweight || false,
+      isTimed:      req.body.isTimed      || false,
       order:        session.exercises.length,
       sets:         [],
     });
@@ -88,15 +90,34 @@ router.post('/:id/exercises/:exerciseId/sets', async (req, res) => {
     if (!ex) return res.status(404).json({ error: 'Exercise not found in session' });
     ex.sets.push({
       setNumber:   ex.sets.length + 1,
-      weight:      req.body.weight || 0,
-      reps:        req.body.reps || 0,
-      leftWeight:  req.body.leftWeight || 0,
-      leftReps:    req.body.leftReps || 0,
-      rightWeight: req.body.rightWeight || 0,
-      rightReps:   req.body.rightReps || 0,
-      unit:        req.body.unit || 'kg',
-      restSeconds: req.body.restSeconds || 0,
+      weight:      req.body.weight      ?? 0,
+      reps:        req.body.reps        ?? 0,
+      duration:    req.body.duration    ?? 0,
+      leftWeight:  req.body.leftWeight  ?? 0,
+      leftReps:    req.body.leftReps    ?? 0,
+      rightWeight: req.body.rightWeight ?? 0,
+      rightReps:   req.body.rightReps   ?? 0,
+      unit:        req.body.unit        || 'kg',
+      restSeconds: req.body.restSeconds ?? 0,
     });
+    await session.save();
+    res.json(session);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// PATCH — update set values (weight, reps, duration, etc.)
+router.patch('/:id/exercises/:exerciseId/sets/:setId', async (req, res) => {
+  try {
+    const session = await WorkoutSession.findOne({ _id: req.params.id, userId: req.user._id });
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    const ex = session.exercises.id(req.params.exerciseId);
+    if (!ex) return res.status(404).json({ error: 'Exercise not found' });
+    const set = ex.sets.id(req.params.setId);
+    if (!set) return res.status(404).json({ error: 'Set not found' });
+    const allowed = ['weight','reps','duration','leftWeight','leftReps','rightWeight','rightReps','unit','restSeconds'];
+    allowed.forEach(f => { if (req.body[f] !== undefined) set[f] = req.body[f]; });
     await session.save();
     res.json(session);
   } catch (err) {

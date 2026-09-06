@@ -10,6 +10,7 @@ const setSchema = new mongoose.Schema({
   rightWeight:  { type: Number, default: 0 },
   rightReps:    { type: Number, default: 0 },
   unit:         { type: String, enum: ['kg', 'lbs'], default: 'kg' },
+  duration:     { type: Number, default: 0 }, // seconds, for timed exercises
   restSeconds:  { type: Number, default: 0 }, // rest taken after this set
 }, { _id: true });
 
@@ -18,6 +19,8 @@ const sessionExerciseSchema = new mongoose.Schema({
   exerciseName: { type: String, required: true }, // snapshot in case exercise is deleted
   muscleGroup:  { type: String, default: '' },
   unilateral:   { type: Boolean, default: false },
+  isBodyweight: { type: Boolean, default: false }, // no weight input needed
+  isTimed:      { type: Boolean, default: false },  // duration instead of reps
   order:        { type: Number, default: 0 },
   sets:         [setSchema],
   notes:        { type: String, default: '' },

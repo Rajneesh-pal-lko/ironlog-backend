@@ -10,6 +10,7 @@ const exerciseSchema = new mongoose.Schema({
   unilateral:   { type: Boolean, default: false },
   notes:        { type: String, trim: true, default: '' },
   active:       { type: Boolean, default: true },
+  favourite:    { type: Boolean, default: false },
 }, { timestamps: true });
 
 export default mongoose.model('Exercise', exerciseSchema);

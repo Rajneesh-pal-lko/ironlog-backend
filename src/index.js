@@ -6,6 +6,8 @@ import authRoutes from './routes/auth.js';
 import exerciseRoutes from './routes/exercises.js';
 import settingsRoutes from './routes/settings.js';
 import workoutRoutes from './routes/workouts.js';
+import seedRoutes from './routes/seed.js';
+import progressRoutes from './routes/progress.js';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -24,6 +26,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/workouts', workoutRoutes);
+app.use('/api/seed', seedRoutes);
+app.use('/api/progress', progressRoutes);
 
 // 404 handler
 app.use((req, res) => {

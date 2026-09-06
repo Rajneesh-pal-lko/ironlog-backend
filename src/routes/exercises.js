@@ -56,6 +56,21 @@ router.patch('/:id/toggle', async (req, res) => {
   }
 });
 
+// PATCH toggle favourite
+router.patch('/:id/favourite', async (req, res) => {
+  try {
+    const exercise = await Exercise.findOne({ _id: req.params.id, userId: req.user._id });
+    if (!exercise) return res.status(404).json({ error: 'Exercise not found' });
+    exercise.favourite = !exercise.favourite;
+    // Auto-activate when favourited
+    if (exercise.favourite) exercise.active = true;
+    await exercise.save();
+    res.json(exercise);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // DELETE exercise
 router.delete('/:id', async (req, res) => {
   try {
