@@ -1,5 +1,6 @@
 import express from 'express';
 import Settings from '../models/Settings.js';
+import UserRoutine from '../models/UserRoutine.js';
 import { protect } from '../middleware/auth.js';
 import { EQUIPMENT_OPTIONS, MOVEMENT_TYPES } from '../config/constants.js';
 
@@ -86,6 +87,35 @@ router.delete('/movement-types/:name', async (req, res) => {
     res.json(doc.items);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ── WEEKLY ROUTINE ────────────────────────────────────────────────────
+
+// GET — get user's weekly routine (creates empty one if not exists)
+router.get('/routine', async (req, res) => {
+  try {
+    let routine = await UserRoutine.findOne({ userId: req.user._id });
+    if (!routine) {
+      routine = await UserRoutine.create({ userId: req.user._id });
+    }
+    res.json(routine.days);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PATCH — save user's weekly routine
+router.patch('/routine', async (req, res) => {
+  try {
+    const routine = await UserRoutine.findOneAndUpdate(
+      { userId: req.user._id },
+      { $set: { days: req.body } },
+      { new: true, upsert: true }
+    );
+    res.json(routine.days);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 

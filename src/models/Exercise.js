@@ -9,7 +9,7 @@ const exerciseSchema = new mongoose.Schema({
   movementType: { type: String, trim: true, default: '' },
   unilateral:   { type: Boolean, default: false },
   notes:        { type: String, trim: true, default: '' },
-  active:       { type: Boolean, default: true },
+  active:       { type: Boolean, default: false },
   favourite:    { type: Boolean, default: false },
 }, { timestamps: true });
 
